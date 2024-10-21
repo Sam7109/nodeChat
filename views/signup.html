@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex justify-center items-center h-screen">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+            <form action="/signup" method="POST">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="username">Username</label>
+                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="text" id="username" name="username" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="email">Email</label>
+                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="email" id="email" name="email" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="password">Password</label>
+                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="password" id="password" name="password" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-bold mb-2" for="mobile">Mobile Number</label>
+                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" required>
+                </div>
+                <button type="submit" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-300">Sign Up</button>
+            </form>
+            <p class="mt-4 text-center text-gray-600">Already have an account? <a href="/login" class="text-blue-500 hover:underline">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>
