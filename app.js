@@ -11,13 +11,14 @@ const path = require("path");
 const app = express();
 
 const Userdetails = require("./model/userdetails");
+const signupRoutes = require("./routes/signup");
 
 // Middleware
 app.use(bodyParser.json()); // Parse incoming requests with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded payloads
 
 app.use(express.static(path.join(__dirname, "views")));
-
+app.use("/api", signupRoutes);
 app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "signup.html"));
 });
