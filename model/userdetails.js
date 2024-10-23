@@ -7,7 +7,6 @@ const Userdetails = sequelize.define('Users', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true  // Make sure username is unique
     },
     email: {
         type: DataTypes.STRING,
@@ -37,3 +36,4 @@ Userdetails.beforeCreate(async (user) => {
   });
 
 module.exports = Userdetails
+

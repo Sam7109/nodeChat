@@ -1,36 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Include Axios -->
+  </head>
+  <body class="bg-gray-100">
     <div class="flex justify-center items-center h-screen">
-        <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-            <form action="/signup" method="POST">
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="username">Username</label>
-                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="text" id="username" name="username" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="email">Email</label>
-                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="email" id="email" name="email" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="password">Password</label>
-                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="password" id="password" name="password" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-bold mb-2" for="mobile">Mobile Number</label>
-                    <input class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500" type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" required>
-                </div>
-                <button type="submit" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-300">Sign Up</button>
-            </form>
-            <p class="mt-4 text-center text-gray-600">Already have an account? <a href="/login" class="text-blue-500 hover:underline">Login</a></p>
-        </div>
+      <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+        <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+        <form id="signupForm" action="/api/registeruser" method="POST">
+          <!-- Combined form tags -->
+          <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="username"
+              >Username</label
+            >
+            <input
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+              type="text"
+              id="username"
+              name="username"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="email"
+              >Email</label
+            >
+            <input
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+              type="email"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="password"
+              >Password</label
+            >
+            <input
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+              type="password"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2" for="mobile"
+              >Mobile Number</label
+            >
+            <input
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+              type="tel"
+              id="mobile"
+              name="mobile"
+              pattern="[0-9]{10}"
+              required
+            />
+            <small class="text-gray-500"
+              >Please enter a 10-digit mobile number.</small
+            >
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-300"
+          >
+            Sign Up
+          </button>
+        </form>
+        <p id="errorMessage" class="mt-4 text-center text-red-500"></p>
+        <p id="successMessage" class="mt-4 text-center text-green-500"></p>
+        <p class="mt-4 text-center text-gray-600">
+          Already have an account?
+          <a href="/login" class="text-blue-500 hover:underline">Login</a>
+        </p>
+      </div>
     </div>
-</body>
+
+    <script>
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          // Gather form data
+          const formData = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            mobile: document.getElementById("mobile").value,
+          };
+
+          // Get error message and success message elements
+          const errorMessage = document.getElementById("errorMessage");
+          const successMessage = document.getElementById("successMessage");
+
+          // Clear previous messages
+          errorMessage.textContent = '';
+          successMessage.textContent = '';
+
+          // Make the API call using Axios
+          axios
+            .post("/api/registeruser", formData)
+            .then((response) => {
+              // Handle success
+              console.log("Sign up successful:", response.data);
+              successMessage.textContent = "Sign up successful! Redirecting to login...";
+              document.getElementById("signupForm").reset(); // Reset form fields
+
+              // Redirect to login page after 2 seconds
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 2000);
+            })
+            .catch((error) => {
+              // Handle error
+              console.error("There was an error signing up:", error);
+              if (error.response && error.response.status === 400) {
+                errorMessage.textContent =
+                  "User already exists. Please use a different email.";
+              } else {
+                errorMessage.textContent =
+                  "An error occurred. Please try again.";
+              }
+            });
+        });
+    </script>
+  </body>
 </html>
