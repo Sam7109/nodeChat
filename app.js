@@ -13,12 +13,16 @@ const app = express();
 const Userdetails = require("./model/userdetails");
 const signupRoutes = require('./routes/signup');
 
+const textroutes = require('./routes/messages')
+
 // Middleware
 app.use(bodyParser.json()); // Parse incoming requests with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded payloads
 
 app.use(express.static(path.join(__dirname, "views")));
 app.use("/api",signupRoutes);
+
+app.use("/textroutes",textroutes)
 
 app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "signup.html"));
@@ -28,12 +32,9 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "login.html"));
 });
 
-const crypto = require('crypto');
-
-// Generate a random secret (64 characters long)
-const jwtSecret = crypto.randomBytes(64).toString('hex');
-
-console.log('Generated JWT Secret:', jwtSecret);
+app.get("/homepage", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "homepage.html"));
+});
 
 sequelize
   .sync() //{alter:true} force: true will drop existing tables { alter:true} will match with model definitions
@@ -49,3 +50,4 @@ sequelize
   .catch((err) => {
     console.error("Error syncing the database:", err);
   });
+

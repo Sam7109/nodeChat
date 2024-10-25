@@ -6,30 +6,27 @@
     <title>Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Include Axios -->
   </head>
   <body class="bg-gray-100">
     <div class="flex justify-center items-center h-screen">
       <div class="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        <form id="signupForm" action="/api/registeruser" method="POST">
+        <form id="signupForm">
           <!-- Combined form tags -->
           <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2" for="username"
-              >Username</label
-            >
+            <label class="block text-gray-700 font-bold mb-2" for="username">Username</label>
             <input
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               type="text"
               id="username"
               name="username"
               required
+              minlength="3"  <!-- Added minlength for username -->
             />
+            <small class="text-gray-500">Username must be at least 3 characters long.</small>
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2" for="email"
-              >Email</label
-            >
+            <label class="block text-gray-700 font-bold mb-2" for="email">Email</label>
             <input
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               type="email"
@@ -39,21 +36,19 @@
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2" for="password"
-              >Password</label
-            >
+            <label class="block text-gray-700 font-bold mb-2" for="password">Password</label>
             <input
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               type="password"
               id="password"
               name="password"
               required
+              minlength="6"  <!-- Add password minlength for security -->
             />
+            <small class="text-gray-500">Password must be at least 6 characters long.</small>
           </div>
           <div class="mb-6">
-            <label class="block text-gray-700 font-bold mb-2" for="mobile"
-              >Mobile Number</label
-            >
+            <label class="block text-gray-700 font-bold mb-2" for="mobile">Mobile Number</label>
             <input
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               type="tel"
@@ -62,9 +57,7 @@
               pattern="[0-9]{10}"
               required
             />
-            <small class="text-gray-500"
-              >Please enter a 10-digit mobile number.</small
-            >
+            <small class="text-gray-500">Please enter a 10-digit mobile number.</small>
           </div>
           <button
             type="submit"
@@ -83,53 +76,62 @@
     </div>
 
     <script>
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent the default form submission
+      document.getElementById("signupForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the default form submission
 
-          // Gather form data
-          const formData = {
-            username: document.getElementById("username").value,
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value,
-            mobile: document.getElementById("mobile").value,
-          };
+        // Get error message and success message elements
+        const errorMessage = document.getElementById("errorMessage");
+        const successMessage = document.getElementById("successMessage");
 
-          // Get error message and success message elements
-          const errorMessage = document.getElementById("errorMessage");
-          const successMessage = document.getElementById("successMessage");
+        // Clear previous messages
+        errorMessage.textContent = '';
+        successMessage.textContent = '';
 
-          // Clear previous messages
-          errorMessage.textContent = '';
-          successMessage.textContent = '';
+        // Gather form data
+        const formData = {
+          username: document.getElementById("username").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value.trim(),
+          mobile: document.getElementById("mobile").value.trim(),
+        };
 
-          // Make the API call using Axios
-          axios
-            .post("/api/registeruser", formData)
-            .then((response) => {
-              // Handle success
-              console.log("Sign up successful:", response.data);
-              successMessage.textContent = "Sign up successful! Redirecting to login...";
-              document.getElementById("signupForm").reset(); // Reset form fields
+        // Frontend validation before making an API call
+        if (formData.username.length < 3) {
+          errorMessage.textContent = "Username must be at least 3 characters long.";
+          return; // Stop form submission
+        }
+        if (formData.password.length < 6) {
+          errorMessage.textContent = "Password must be at least 6 characters long.";
+          return; // Stop form submission
+        }
+        if (!/^\d{10}$/.test(formData.mobile)) {
+          errorMessage.textContent = "Please enter a valid 10-digit mobile number.";
+          return; // Stop form submission
+        }
 
-              // Redirect to login page after 2 seconds
-              setTimeout(() => {
-                window.location.href = "/login";
-              }, 2000);
-            })
-            .catch((error) => {
-              // Handle error
-              console.error("There was an error signing up:", error);
-              if (error.response && error.response.status === 400) {
-                errorMessage.textContent =
-                  "User already exists. Please use a different email.";
-              } else {
-                errorMessage.textContent =
-                  "An error occurred. Please try again.";
-              }
-            });
-        });
+        // Make the API call using Axios
+        axios.post("/api/registeruser", formData)
+          .then((response) => {
+            console.log("Sign up successful:", response.data);
+            successMessage.textContent = "Sign up successful! Redirecting to login...";
+            document.getElementById("signupForm").reset(); // Reset form fields
+
+            // Redirect to login page after 2 seconds
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error("There was an error signing up:", error);
+            if (error.response && error.response.status === 400) {
+              errorMessage.textContent = "User already exists. Please use a different email.";
+            } else if (error.response && error.response.status === 500) {
+              errorMessage.textContent = "Internal server error. Please try again later.";
+            } else {
+              errorMessage.textContent = "An error occurred. Please try again.";
+            }
+          });
+      });
     </script>
   </body>
 </html>

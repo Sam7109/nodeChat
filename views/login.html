@@ -76,11 +76,11 @@
           })
           .then((response) => {
             if (response.data.success) {
-              localStorage.setItem("jwt", data.token);
+              localStorage.setItem("jwt",  response.data.token);
 
               console.log("Login successful:", response.data);
               // Handle successful login (e.g., redirect to dashboard)
-              window.location.href = "/dashboard"; // Example redirection after login
+              window.location.href = "/homepage"; // Example redirection after login
             }
           })
           .catch((error) => {

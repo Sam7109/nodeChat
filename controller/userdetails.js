@@ -3,8 +3,7 @@ const bcrypt = require("bcryptjs"); // bcrypt to compare passwords
 const { config } = require("dotenv");
 
 const jwt = require("jsonwebtoken"); // for token generation
-require('dotenv').config();
-
+require("dotenv").config();
 
 exports.postUserdetails = async (req, res) => {
   try {
@@ -37,18 +36,24 @@ exports.isValidUser = async (req, res) => {
       res.status(500).json({ message: "User does not exist" });
     }
 
-    const userPass = bcrypt.compare(password, user.password);
+    const userPass = await bcrypt.compare(password, user.password);
     if (!userPass) {
       return res.status(400).json({ message: "Invalid password" });
     }
     const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN } // Token expiration time
-      );
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN } // Token expiration time
+    );
+    if (!user.userid) {
+      await Userdetails.update({ userid: user.id }, { where: { id: user.id } });
+    }
 
-      return res.status(200).json({ message: 'Login successful', token });
-
+    return res.status(200).json({
+      success: true, // Add this line
+      message: "Login successful",
+      token: token,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body class="bg-gray-100">
+    <div class="flex flex-col h-screen">
+
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4">
+            <h1 class="text-2xl font-bold">Chat Application</h1>
+        </header>
+
+        <div class="flex flex-1">
+
+            <!-- Sidebar for Contacts -->
+            <aside class="bg-white w-1/4 p-4 border-r border-gray-300">
+                <h2 class="text-lg font-semibold mb-4">Contacts</h2>
+                <ul>
+                    <li class="mb-2">
+                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Alice</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Bob</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Charlie</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block p-2 rounded hover:bg-blue-100">David</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Eve</a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Chat Area -->
+            <main class="flex-1 p-4">
+                <div class="bg-white rounded-lg shadow-lg h-full flex flex-col">
+                    <div id="chatArea" class="flex-1 p-4 border-b border-gray-300 overflow-y-auto h-64">
+                        <!-- Messages will appear here dynamically -->
+                    </div>
+
+                    <!-- Input area with send icon -->
+                    <div class="p-4 border-t border-gray-300 flex items-center">
+                        <input type="text" id="messageInput" placeholder="Type a message..." class="border rounded w-full p-2 mr-2">
+                        <button id="sendMessageButton" class="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i> <!-- Icon -->
+                            <span>Send</span> <!-- Button text -->
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+
+        // Add event listener for send button click
+        document.getElementById("sendMessageButton").addEventListener("click", function() {
+            const message = messageInput.value.trim();
+
+            // Ensure the message is not empty
+            if (message !== "") {
+                // Example API call to send the message
+                axios.post("/textroutes/send", {
+                    message: message
+                })
+                .then(response => {
+                    console.log("Message sent:", response.data);
+
+                    // Append the sent message to the chat area dynamically
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('mb-4', 'text-gray-700');
+                    messageElement.textContent = "You: " + message;
+
+                    chatArea.appendChild(messageElement);
+
+                    // Scroll to the bottom of the chat area
+                    chatArea.scrollTop = chatArea.scrollHeight;
+
+                    // Clear the input field after sending the message
+                    messageInput.value = "";
+                })
+                .catch(error => {
+                    console.error("Error sending message:", error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

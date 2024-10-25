@@ -7,6 +7,7 @@ const Userdetails = sequelize.define('Users', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique : false
     },
     email: {
         type: DataTypes.STRING,
@@ -27,6 +28,11 @@ const Userdetails = sequelize.define('Users', {
             isNumeric: true,
             len: [10, 10]  // Ensure mobile number has exactly 10 digits
         }
+    },
+    userid : {
+        type : DataTypes.INTEGER ,
+        allowNull : true ,
+        unique : true
     }
 });
 
