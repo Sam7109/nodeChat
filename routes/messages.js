@@ -5,7 +5,7 @@ const messages = require("../controller/messages");
 
 // Create a router instance
 const router = express.Router();
-router.post("/send", AuthenticateRoutes.protect, messages.sendMessage);
+router.post('/send', AuthenticateRoutes.protect, messages.sendMessage);
 
 
 module.exports = router;

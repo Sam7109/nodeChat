@@ -66,38 +66,53 @@
     <script>
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
+// Add event listener for send button click
+document.getElementById("sendMessageButton").addEventListener("click", function () {
+        const message = messageInput.value.trim();
 
-        // Add event listener for send button click
-        document.getElementById("sendMessageButton").addEventListener("click", function() {
-            const message = messageInput.value.trim();
+        // Ensure the message is not empty
+        if (message !== "") {
+            // Retrieve the JWT from localStorage
+            const token = localStorage.getItem('jwt');
+            console.log(localStorage.getItem('jwt'));
 
-            // Ensure the message is not empty
-            if (message !== "") {
-                // Example API call to send the message
-                axios.post("/textroutes/send", {
-                    message: message
-                })
-                .then(response => {
-                    console.log("Message sent:", response.data);
 
-                    // Append the sent message to the chat area dynamically
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('mb-4', 'text-gray-700');
-                    messageElement.textContent = "You: " + message;
-
-                    chatArea.appendChild(messageElement);
-
-                    // Scroll to the bottom of the chat area
-                    chatArea.scrollTop = chatArea.scrollHeight;
-
-                    // Clear the input field after sending the message
-                    messageInput.value = "";
-                })
-                .catch(error => {
-                    console.error("Error sending message:", error);
-                });
+            if (!token) {
+                console.error("JWT token not found. Please log in.");
+                alert("You need to log in to send a message.");
+                return;
             }
-        });
+
+            // Make the API call with the JWT in the Authorization header
+            axios.post("/textroutes/send", {
+                message: message
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}` // Include the JWT token
+                }
+            })
+            .then(response => {
+                console.log("Message sent:", response.data);
+
+                // Append the sent message to the chat area dynamically
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('mb-4', 'text-gray-700');
+                messageElement.textContent = "You: " + message;
+
+                chatArea.appendChild(messageElement);
+
+                // Scroll to the bottom of the chat area
+                chatArea.scrollTop = chatArea.scrollHeight;
+
+                // Clear the input field after sending the message
+                messageInput.value = "";
+            })
+            .catch(error => {
+                console.error("Error sending message:", error.response ? error.response.data : error);
+                alert("Failed to send the message. Please try again.");
+            });
+        }
+    });
     </script>
 </body>
 </html>
