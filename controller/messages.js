@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const Messages = require("../model/messages");
 
 exports.sendMessage = async (req, res) => {
@@ -21,3 +22,21 @@ exports.sendMessage = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.getMessages = async(req,res) => {
+  try{
+    const userid = req.user.id
+    const messages = await Messages.findAll({
+      where: { userid },
+      order: [['createdAt', 'ASC']], // Ensures consistent chronological order
+    });
+    
+    if(!messages){
+      res.status(201).json({message: 'No data found'})
+    }
+    res.status(200).json({message: 'Data found', messages})
+  }
+  catch(error){
+    res.status(500).json({message: 'Internal server error'})
+  }
+}
