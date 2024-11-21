@@ -154,6 +154,9 @@
             alert("Failed to fetch messages. Please try again.");
         });
     }
+    // Call fetchMessages every 5 seconds  , commented due to performance issue 
+  //  setInterval(fetchMessages, 5000);
+
 
     // Call fetchMessages when the page loads
     window.onload = fetchMessages;
@@ -169,4 +172,5 @@
     </script>
 </body>
 </html>
+
 

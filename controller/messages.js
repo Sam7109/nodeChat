@@ -4,8 +4,6 @@ const Messages = require("../model/messages");
 exports.sendMessage = async (req, res) => {
   try {
     const userid = req.user.id;
-    console.log(req.headers, req.body, req.params, req.query);
-
     const messagePayload = req.body.message
     if (messagePayload.length===0) {
       return res.status(400).json({ message: "Message cannot be empty" });
