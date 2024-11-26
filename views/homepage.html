@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Add Font Awesome for icons -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 </head>
-<body class="bg-gray-100"> 
+
+<body class="bg-gray-100">
     <div class="flex flex-col h-screen">
 
         <!-- Header -->
@@ -43,6 +43,15 @@
                         <a href="#" class="block p-2 rounded hover:bg-blue-100">Eve</a>
                     </li>
                 </ul>
+
+                <h2 class="text-lg font-semibold mt-6 mb-4">Groups</h2>
+                <ul id="groupList" class="mb-4">
+                    <!-- Groups will be dynamically populated here -->
+                </ul>
+                <button id="createGroupButton"
+                    class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 w-full">
+                    Create Group
+                </button>
             </aside>
 
             <!-- Main Chat Area -->
@@ -51,126 +60,174 @@
                     <div id="chatArea" class="flex-1 p-4 border-b border-gray-300 overflow-y-auto h-64">
                         <!-- Messages will appear here dynamically -->
                     </div>
-
-                    <!-- Input area with send icon -->
                     <div class="p-4 border-t border-gray-300 flex items-center">
-                        <input type="text" id="messageInput" placeholder="Type a message..." class="border rounded w-full p-2 mr-2">
-                        <button id="sendMessageButton" class="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 flex items-center">
-                            <i class="fas fa-paper-plane mr-2"></i> <!-- Icon -->
-                            <span>Send</span> <!-- Button text -->
+                        <input type="text" id="messageInput" placeholder="Type a message..."
+                            class="border rounded w-full p-2 mr-2">
+                        <button id="sendMessageButton"
+                            class="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            <span>Send</span>
                         </button>
                     </div>
                 </div>
             </main>
         </div>
+    </div>
 
+    <!-- Modal for Create Group -->
+    <div id="createGroupModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-1/3">
+            <h2 class="text-xl font-semibold mb-4">Create Group</h2>
+            <input type="text" id="groupNameInput" placeholder="Group Name" class="border rounded w-full p-2 mb-4">
+            <h3 class="text-lg font-semibold mb-2">Add Members:</h3>
+            <div id="contactsList" class="flex flex-wrap mb-4">
+                <!-- Dynamic list of contacts with checkboxes -->
+            </div>
+            <div class="flex justify-end">
+                <button id="cancelGroupButton"
+                    class="bg-gray-300 text-gray-700 rounded px-4 py-2 mr-2 hover:bg-gray-400">
+                    Cancel
+                </button>
+                <button id="createGroupSubmit" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">
+                    Create Group
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
-// Add event listener for send button click
-        document.getElementById("sendMessageButton").addEventListener("click", function () {
-        const message = messageInput.value.trim();
+        const groupList = document.getElementById('groupList');
+        const createGroupButton = document.getElementById('createGroupButton');
+        const createGroupModal = document.getElementById('createGroupModal');
+        const groupNameInput = document.getElementById('groupNameInput');
+        const contactsList = document.getElementById('contactsList');
 
-        // Ensure the message is not empty
-        if (message !== "") {
-            // Retrieve the JWT from localStorage
+        // Fetch messages when the page loads
+        window.onload = fetchMessages;
+
+        // Fetch and display messages
+        // function fetchMessages() {
+        //     const token = localStorage.getItem('jwt');
+        //     if (!token) {
+        //         alert("You need to log in to view the messages.");
+        //         return;
+        //     }
+        //     axios.get("/textroutes/getMessages", {
+        //         headers: { 'Authorization': `Bearer ${token}` }
+        //     }).then(response => {
+        //         chatArea.innerHTML = "";
+        //         response.data.messages.forEach(msg => {
+        //             const messageElement = document.createElement('div');
+        //             messageElement.textContent = `${msg.user}: ${msg.message}`;
+        //             chatArea.appendChild(messageElement);
+        //         });
+        //     }).catch(console.error);
+        // }
+        function fetchMessages() {
             const token = localStorage.getItem('jwt');
-            console.log(localStorage.getItem('jwt'));
-
-
             if (!token) {
-                console.error("JWT token not found. Please log in.");
-                alert("You need to log in to send a message.");
+                alert("You need to log in to view the messages.");
                 return;
             }
 
-            // Make the API call with the JWT in the Authorization header
-            axios.post("/textroutes/send", {
-                message: message
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}` // Include the JWT token
-                }
-            })
-            .then(response => {
-                console.log("Message sent:", response.data);
+            axios.get("/textroutes/getMessages", {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(response => {
+                console.log(response)
+                chatArea.innerHTML = ""; // Clear chat area before displaying new messages
 
-                // Append the sent message to the chat area dynamically
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('mb-4', 'text-gray-700');
-                messageElement.textContent = "You: " + message;
+                response.data.forEach(msg => {
+                    // Create a container for the entire message
+                    const messageContainer = document.createElement('div');
+                    messageContainer.className = 'mb-2'; // Add some spacing between messages
 
-                chatArea.appendChild(messageElement);
+                    // Create a sender and message element
+                    const messageTextElement = document.createElement('span');
+                    messageTextElement.textContent = `${msg.sender}: ${msg.message}`;
+                    messageTextElement.className = 'font-bold text-blue-700'; // Optional styling for sender/message
 
-                // Scroll to the bottom of the chat area
-                chatArea.scrollTop = chatArea.scrollHeight;
+                    // Create a timestamp element
+                    const timestampElement = document.createElement('span');
+                    const timestamp = new Date(msg.timestamp).toLocaleString();
+                    timestampElement.textContent = ` - ${timestamp}`;
+                    timestampElement.className = 'text-sm text-gray-500'; // Optional styling for timestamp
 
-                // Clear the input field after sending the message
-                messageInput.value = "";
-            })
-            .catch(error => {
-                console.error("Error sending message:", error.response ? error.response.data : error);
-                alert("Failed to send the message. Please try again.");
+                    // Append the message text and timestamp to the container
+                    messageContainer.appendChild(messageTextElement);
+                    messageContainer.appendChild(timestampElement);
+
+                    // Append the message container to the chat area
+                    chatArea.appendChild(messageContainer);
+                });
+
+
+            }).catch(error => {
+                console.error("Error fetching messages:", error);
             });
         }
-    });
-    function fetchMessages() {
-        // Retrieve the JWT from localStorage
-        const token = localStorage.getItem('jwt');
 
-        if (!token) {
-            console.error("JWT token not found. Please log in.");
-            alert("You need to log in to view the messages.");
-            return;
-        }
 
-        // Make the GET request to fetch chat messages
-        axios.get("/textroutes/getMessages", {
-            headers: {
-                'Authorization': `Bearer ${token}` // Include the JWT token
-            }
-        })
-        .then(response => {
-            console.log("Messages fetched:", response.data.messages);
-
-            // Clear the chat area before appending new messages
-            chatArea.innerHTML = "";
-
-            // Loop through the messages and display them
-            response.data.messages.forEach(msg => {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('mb-4', 'text-gray-700');
-                messageElement.textContent = `${msg.user}: ${msg.message}`;
-                chatArea.appendChild(messageElement);
+        // Open the create group modal
+        createGroupButton.addEventListener("click", () => {
+            contactsList.innerHTML = "";
+            ["Alice", "Bob", "Charlie", "David", "Eve"].forEach(contact => {
+                const contactElement = document.createElement("div");
+                contactElement.innerHTML = `<input type="checkbox" value="${contact}">${contact}`;
+                contactsList.appendChild(contactElement);
             });
-
-            // Scroll to the bottom of the chat area
-            chatArea.scrollTop = chatArea.scrollHeight;
-        })
-        .catch(error => {
-            console.error("Error fetching messages:", error.response ? error.response.data : error);
-            alert("Failed to fetch messages. Please try again.");
+            createGroupModal.classList.remove("hidden");
         });
-    }
-    // Call fetchMessages every 5 seconds  , commented due to performance issue 
-  //  setInterval(fetchMessages, 5000);
 
+        // Close modal
+        document.getElementById("cancelGroupButton").addEventListener("click", () => {
+            createGroupModal.classList.add("hidden");
+        });
 
-    // Call fetchMessages when the page loads
-    window.onload = fetchMessages;
+        // Create group
+        document.getElementById("createGroupSubmit").addEventListener("click", () => {
+            const groupName = groupNameInput.value.trim();
+            const members = Array.from(contactsList.querySelectorAll("input:checked")).map(input => input.value);
 
-     // Logout button click event
-     document.getElementById("logoutButton").addEventListener("click", function () {
-        // Remove the JWT token from localStorage
-        localStorage.removeItem('jwt');
+            if (!groupName || !members.length) {
+                alert("Group name and members are required.");
+                return;
+            }
 
-        // Redirect the user to the login page
-        window.location.href = "/login.html";
-    });
+            const token = localStorage.getItem('jwt');
+            axios.post("/groupRoutes/create", { groupName, members }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(response => {
+                const group = document.createElement("li");
+                group.innerHTML = `<a href="#">${groupName}</a>`;
+                groupList.appendChild(group);
+                createGroupModal.classList.add("hidden");
+                groupNameInput.value = "";
+            }).catch(console.error);
+        });
+
+        // Logout functionality
+        document.getElementById("logoutButton").addEventListener("click", () => {
+            localStorage.removeItem("jwt");
+            window.location.href = "/login.html";
+        });
+
+        // Send message functionality
+        document.getElementById("sendMessageButton").addEventListener("click", () => {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            const token = localStorage.getItem('jwt');
+            axios.post("/textroutes/send", { message }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).then(() => {
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `You: ${message}`;
+                chatArea.appendChild(messageElement);
+                messageInput.value = "";
+            }).catch(console.error);
+        });
     </script>
 </body>
+
 </html>
-
-

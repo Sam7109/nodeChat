@@ -9,11 +9,11 @@ const Messages = sequelize.define('Messages', {
         allowNull: false,      
     },
     userid: {
-        type: DataTypes.INTEGER, // Corrected from INT to INTEGER
+        type: DataTypes.INTEGER, 
         allowNull: false,
     },
     message: {
-        type: DataTypes.STRING,   // Corrected from STRING to STRING
+        type: DataTypes.STRING,   
         allowNull: false,
     }
 })

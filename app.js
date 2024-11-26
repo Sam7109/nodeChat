@@ -11,9 +11,14 @@ const path = require("path");
 const app = express();
 
 const Userdetails = require("./model/userdetails");
+const Messages = require("./model/messages"); 
 const signupRoutes = require('./routes/signup');
 
 const textroutes = require('./routes/messages')
+
+// Associations
+Userdetails.hasMany(Messages, { foreignKey: 'userid', sourceKey: 'userid' });
+Messages.belongsTo(Userdetails, { foreignKey: 'userid', targetKey: 'userid' });
 
 // Middleware
 app.use(bodyParser.json()); // Parse incoming requests with JSON payloads
