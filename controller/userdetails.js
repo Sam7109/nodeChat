@@ -11,8 +11,9 @@ exports.postUserdetails = async (req, res) => {
 
     const existingUser = await Userdetails.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists" }); // Ensure return after response
     }
+
     const userDetails = await Userdetails.create({
       username: username,
       email: email,
@@ -20,11 +21,9 @@ exports.postUserdetails = async (req, res) => {
       mobile: mobile,
     });
 
-    return res
-      .status(201)
-      .json({ message: "User registered Successfully", data: userDetails });
+    return res.status(201).json({ message: "User registered Successfully", data: userDetails });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message }); // Ensure return after response
   }
 };
 
@@ -33,28 +32,30 @@ exports.isValidUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await Userdetails.findOne({ where: { email } });
     if (!user) {
-      res.status(500).json({ message: "User does not exist" });
+      return res.status(500).json({ message: "User does not exist" }); // Ensure return after response
     }
 
     const userPass = await bcrypt.compare(password, user.password);
     if (!userPass) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(400).json({ message: "Invalid password" }); // Ensure return after response
     }
+
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN } // Token expiration time
+      { expiresIn: process.env.JWT_EXPIRES_IN }
     );
+
     if (!user.userid) {
       await Userdetails.update({ userid: user.id }, { where: { id: user.id } });
     }
 
     return res.status(200).json({
-      success: true, // Add this line
+      success: true,
       message: "Login successful",
       token: token,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message }); // Ensure return after response
   }
 };

@@ -79,13 +79,17 @@
         <div class="bg-white rounded-lg shadow-lg p-6 w-1/3">
             <h2 class="text-xl font-semibold mb-4">Create Group</h2>
             <input type="text" id="groupNameInput" placeholder="Group Name" class="border rounded w-full p-2 mb-4">
+
             <h3 class="text-lg font-semibold mb-2">Add Members:</h3>
             <div id="contactsList" class="flex flex-wrap mb-4">
-                <!-- Dynamic list of contacts with checkboxes -->
+                <!-- Dynamically added email input fields will appear here -->
             </div>
-            <div class="flex justify-end">
-                <button id="cancelGroupButton"
-                    class="bg-gray-300 text-gray-700 rounded px-4 py-2 mr-2 hover:bg-gray-400">
+            <button id="addEmailButton" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">
+                Add Email
+            </button>
+
+            <div class="flex justify-end mt-4">
+                <button id="cancelGroupButton" class="bg-gray-300 text-gray-700 rounded px-4 py-2 mr-2 hover:bg-gray-400">
                     Cancel
                 </button>
                 <button id="createGroupSubmit" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">
@@ -103,28 +107,13 @@
         const createGroupModal = document.getElementById('createGroupModal');
         const groupNameInput = document.getElementById('groupNameInput');
         const contactsList = document.getElementById('contactsList');
+        const addEmailButton = document.getElementById('addEmailButton');
+        const createGroupSubmit = document.getElementById('createGroupSubmit');
 
         // Fetch messages when the page loads
         window.onload = fetchMessages;
 
         // Fetch and display messages
-        // function fetchMessages() {
-        //     const token = localStorage.getItem('jwt');
-        //     if (!token) {
-        //         alert("You need to log in to view the messages.");
-        //         return;
-        //     }
-        //     axios.get("/textroutes/getMessages", {
-        //         headers: { 'Authorization': `Bearer ${token}` }
-        //     }).then(response => {
-        //         chatArea.innerHTML = "";
-        //         response.data.messages.forEach(msg => {
-        //             const messageElement = document.createElement('div');
-        //             messageElement.textContent = `${msg.user}: ${msg.message}`;
-        //             chatArea.appendChild(messageElement);
-        //         });
-        //     }).catch(console.error);
-        // }
         function fetchMessages() {
             const token = localStorage.getItem('jwt');
             if (!token) {
@@ -135,7 +124,6 @@
             axios.get("/textroutes/getMessages", {
                 headers: { 'Authorization': `Bearer ${token}` }
             }).then(response => {
-                console.log(response)
                 chatArea.innerHTML = ""; // Clear chat area before displaying new messages
 
                 response.data.forEach(msg => {
@@ -161,42 +149,62 @@
                     // Append the message container to the chat area
                     chatArea.appendChild(messageContainer);
                 });
-
-
             }).catch(error => {
                 console.error("Error fetching messages:", error);
             });
         }
 
-
         // Open the create group modal
         createGroupButton.addEventListener("click", () => {
-            contactsList.innerHTML = "";
-            ["Alice", "Bob", "Charlie", "David", "Eve"].forEach(contact => {
-                const contactElement = document.createElement("div");
-                contactElement.innerHTML = `<input type="checkbox" value="${contact}">${contact}`;
-                contactsList.appendChild(contactElement);
-            });
+            contactsList.innerHTML = ""; // Clear previous email fields
+            addEmailButton.classList.remove("hidden"); // Ensure add email button is visible
             createGroupModal.classList.remove("hidden");
         });
 
-        // Close modal
+        // Add new email input field when "Add Email" button is clicked
+        addEmailButton.addEventListener("click", () => {
+            const emailInputDiv = document.createElement("div");
+            emailInputDiv.classList.add("mb-4", "flex", "items-center");
+
+            // Create an email input field
+            const emailInput = document.createElement("input");
+            emailInput.type = "email";
+            emailInput.placeholder = "Enter member's email";
+            emailInput.classList.add("border", "rounded", "w-full", "p-2");
+
+            // Create a remove button for the email input
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "Remove";
+            removeButton.classList.add("bg-red-500", "text-white", "rounded", "px-2", "ml-2");
+
+            // Append the email input and remove button to the div
+            emailInputDiv.appendChild(emailInput);
+            emailInputDiv.appendChild(removeButton);
+            contactsList.appendChild(emailInputDiv);
+
+            // Remove the email input field when the remove button is clicked
+            removeButton.addEventListener("click", () => {
+                contactsList.removeChild(emailInputDiv);
+            });
+        });
+
+        // Cancel group creation
         document.getElementById("cancelGroupButton").addEventListener("click", () => {
             createGroupModal.classList.add("hidden");
         });
 
         // Create group
-        document.getElementById("createGroupSubmit").addEventListener("click", () => {
+        createGroupSubmit.addEventListener("click", () => {
             const groupName = groupNameInput.value.trim();
-            const members = Array.from(contactsList.querySelectorAll("input:checked")).map(input => input.value);
+            const members = Array.from(contactsList.querySelectorAll("input[type='email']")).map(input => input.value);
 
-            if (!groupName || !members.length) {
+            if (!groupName || members.length === 0) {
                 alert("Group name and members are required.");
                 return;
             }
 
             const token = localStorage.getItem('jwt');
-            axios.post("/groupRoutes/create", { groupName, members }, {
+            axios.post("/textroutes/creategroups", { groupName, members }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             }).then(response => {
                 const group = document.createElement("li");
@@ -208,17 +216,18 @@
         });
 
         // Logout functionality
-        document.getElementById("logoutButton").addEventListener("click", () => {
+        document.getElementById('logoutButton').addEventListener("click", () => {
             localStorage.removeItem("jwt");
             window.location.href = "/login.html";
         });
 
-        // Send message functionality
-        document.getElementById("sendMessageButton").addEventListener("click", () => {
+         // Send message functionality
+         document.getElementById("sendMessageButton").addEventListener("click", () => {
             const message = messageInput.value.trim();
+            const groupId = null; 
             if (!message) return;
             const token = localStorage.getItem('jwt');
-            axios.post("/textroutes/send", { message }, {
+            axios.post("/textroutes/send", { message , groupId }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             }).then(() => {
                 const messageElement = document.createElement('div');

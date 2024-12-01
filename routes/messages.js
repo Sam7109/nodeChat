@@ -7,7 +7,7 @@ const messages = require("../controller/messages");
 const router = express.Router();
 router.post('/send', AuthenticateRoutes.protect, messages.sendMessage);
 
-router.get('/getMessages',AuthenticateRoutes.protect,messages.getMessagesWithSender)
+router.get('/getMessages',AuthenticateRoutes.protect,messages.getMessagesWithSender);
 
 
 module.exports = router;

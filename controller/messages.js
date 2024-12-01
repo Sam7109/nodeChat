@@ -22,24 +22,6 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// exports.getMessages = async(req,res) => {
-//   try{
-//     const userid = req.user.id
-//     const messages = await Messages.findAll({
-//       where: { userid },
-//       order: [['createdAt', 'ASC']], // Ensures consistent chronological order
-//     }); 
-    
-//     if(!messages){
-//       res.status(201).json({message: 'No data found'})
-//     }
-//     res.status(200).json({message: 'Data found', messages})
-//   }
-//   catch(error){
-//     res.status(500).json({message: 'Internal server error'})
-//   }
-// }
-
 exports.getMessagesWithSender = async (req, res) => {
   try {
     const messages = await Messages.findAll({
@@ -50,13 +32,14 @@ exports.getMessagesWithSender = async (req, res) => {
         },
       ],
       order: [['createdAt', 'ASC']], // Sort messages by their timestamp in ascending order
+      raw: true 
     });
 
     // Formatting  the response
     const formattedMessages = messages.map((msg) => ({
       id: msg.id,
       message: msg.message,
-      sender: msg.User.username, // Access the joined username
+      sender: msg['Userdetail.username'],
       timestamp: msg.createdAt,  // Include the timestamp if needed
     }));
 
