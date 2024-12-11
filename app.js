@@ -11,23 +11,47 @@ const path = require("path");
 const app = express();
 
 const Userdetails = require("./model/userdetails");
-const Messages = require("./model/messages"); 
-const signupRoutes = require('./routes/signup');
+const Messages = require("./model/messages");
 
-const textroutes = require('./routes/messages')
+const Group = require("./model/groups");
+const GroupMember = require("./model/groupmembers");
+const GroupMessage = require("./model/groupmessage");
 
-// Associations
-Userdetails.hasMany(Messages, { foreignKey: 'userid', sourceKey: 'userid' });
-Messages.belongsTo(Userdetails, { foreignKey: 'userid', targetKey: 'userid' });
+const signupRoutes = require("./routes/signup");
+const textroutes = require("./routes/messages");
+
+// Userdetails has many Messages
+Userdetails.hasMany(Messages, { foreignKey: "userId", as: "messages" });
+Messages.belongsTo(Userdetails, { foreignKey: "userId", as: "user" });
+
+// Group has many Messages
+Group.hasMany(Messages, { foreignKey: "groupId", as: "messages" });
+Messages.belongsTo(Group, { foreignKey: "groupId", as: "group" });
+
+// Group has many GroupMembers
+Group.hasMany(GroupMember, { foreignKey: "groupId", as: "members" });
+GroupMember.belongsTo(Group, { foreignKey: "groupId", as: "group" });
+
+// Userdetails has many GroupMember (user's membership in groups)
+Userdetails.hasMany(GroupMember, { foreignKey: "userid", as: "groupMemberships" });
+GroupMember.belongsTo(Userdetails, { foreignKey: "userid", as: "user" });
+
+// Group has many GroupMessages
+Group.hasMany(GroupMessage, { foreignKey: "groupId", as: "groupMessages" });
+GroupMessage.belongsTo(Group, { foreignKey: "groupId", as: "group" });
+
+// Userdetails has many GroupMessages (user's messages in groups)
+Userdetails.hasMany(GroupMessage, { foreignKey: "userid", as: "userMessages" });
+GroupMessage.belongsTo(Userdetails, { foreignKey: "userid", as: "user" });
 
 // Middleware
 app.use(bodyParser.json()); // Parse incoming requests with JSON payloads
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded payloads
 
 app.use(express.static(path.join(__dirname, "views")));
-app.use("/api",signupRoutes);
+app.use("/api", signupRoutes);
 
-app.use("/textroutes",textroutes)
+app.use("/textroutes", textroutes);
 
 app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "signup.html"));
@@ -55,4 +79,5 @@ sequelize
   .catch((err) => {
     console.error("Error syncing the database:", err);
   });
+
 

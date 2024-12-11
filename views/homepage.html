@@ -1,242 +1,677 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <!-- Existing Head Content -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Application</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Updated Font Awesome Integration -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-pY1eMl6D1jK3O+8sxQdXlC+gFTqM/+u6VQ3bIoD5Q7zO7JpV1cVYq8lRkGKKLgUwPg1R2VY+/jA1nZoaoV7f5w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
+    <!-- Optional: Include Lodash for debouncing (if implementing debouncing) -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  </head>
 
-<body class="bg-gray-100">
+  <body class="bg-gray-100">
     <div class="flex flex-col h-screen">
+      <!-- Header -->
+      <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Chat Application</h1>
+        <button
+          id="logoutButton"
+          class="bg-red-500 text-white rounded px-4 py-2 hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </header>
 
-        <!-- Header -->
-        <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Chat Application</h1>
-            <button id="logoutButton" class="bg-red-500 text-white rounded px-4 py-2 hover:bg-red-600">
-                Logout
-            </button>
-        </header>
+      <div class="flex flex-1">
+        <!-- Sidebar for Contacts -->
+        <aside class="bg-white w-1/4 p-4 border-r border-gray-300">
+          <h2 class="text-lg font-semibold mt-6 mb-4">Groups</h2>
+          <ul id="groupList" class="mb-4">
+            <!-- Groups will be dynamically populated here -->
+          </ul>
+          <button
+            id="createGroupButton"
+            class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 w-full"
+          >
+            Create Group
+          </button>
+        </aside>
 
-        <div class="flex flex-1">
+        <!-- Main Chat Area -->
+        <main class="flex-1 p-4">
+          <div class="bg-white rounded-lg shadow-lg h-full flex flex-col">
+            <!-- Chat Header -->
+            <div class="flex justify-between items-center p-4 border-b border-gray-300">
+              <h2 id="chatGroupName" class="text-xl font-semibold">Select a group to start chatting</h2>
+              <button
+                id="addUserButton"
+                class="bg-green-500 text-white rounded px-4 py-2 hover:bg-green-600 flex items-center"
+              >
+                <i class="fas fa-user-plus mr-2"></i>
+                <span>Add User</span>
+              </button>
+            </div>
 
-            <!-- Sidebar for Contacts -->
-            <aside class="bg-white w-1/4 p-4 border-r border-gray-300">
-                <h2 class="text-lg font-semibold mb-4">Contacts</h2>
-                <ul>
-                    <li class="mb-2">
-                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Alice</a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Bob</a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Charlie</a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="block p-2 rounded hover:bg-blue-100">David</a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="#" class="block p-2 rounded hover:bg-blue-100">Eve</a>
-                    </li>
-                </ul>
-
-                <h2 class="text-lg font-semibold mt-6 mb-4">Groups</h2>
-                <ul id="groupList" class="mb-4">
-                    <!-- Groups will be dynamically populated here -->
-                </ul>
-                <button id="createGroupButton"
-                    class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 w-full">
-                    Create Group
-                </button>
-            </aside>
-
-            <!-- Main Chat Area -->
-            <main class="flex-1 p-4">
-                <div class="bg-white rounded-lg shadow-lg h-full flex flex-col">
-                    <div id="chatArea" class="flex-1 p-4 border-b border-gray-300 overflow-y-auto h-64">
-                        <!-- Messages will appear here dynamically -->
-                    </div>
-                    <div class="p-4 border-t border-gray-300 flex items-center">
-                        <input type="text" id="messageInput" placeholder="Type a message..."
-                            class="border rounded w-full p-2 mr-2">
-                        <button id="sendMessageButton"
-                            class="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 flex items-center">
-                            <i class="fas fa-paper-plane mr-2"></i>
-                            <span>Send</span>
-                        </button>
-                    </div>
-                </div>
-            </main>
-        </div>
+            <div
+              id="chatArea"
+              class="flex-1 p-4 border-b border-gray-300 overflow-y-auto"
+            >
+              <!-- Messages will appear here dynamically -->
+            </div>
+            <div class="p-4 border-t border-gray-300 flex items-center">
+              <input
+                type="text"
+                id="messageInput"
+                placeholder="Type a message..."
+                class="border rounded w-full p-2 mr-2"
+              />
+              <button
+                id="sendMessageButton"
+                class="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 flex items-center"
+              >
+                <i class="fas fa-paper-plane mr-2"></i>
+                <span>Send</span>
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
 
-    <!-- Modal for Create Group -->
-    <div id="createGroupModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center hidden">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-1/3">
-            <h2 class="text-xl font-semibold mb-4">Create Group</h2>
-            <input type="text" id="groupNameInput" placeholder="Group Name" class="border rounded w-full p-2 mb-4">
-
-            <h3 class="text-lg font-semibold mb-2">Add Members:</h3>
-            <div id="contactsList" class="flex flex-wrap mb-4">
-                <!-- Dynamically added email input fields will appear here -->
-            </div>
-            <button id="addEmailButton" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">
-                Add Email
-            </button>
-
-            <div class="flex justify-end mt-4">
-                <button id="cancelGroupButton" class="bg-gray-300 text-gray-700 rounded px-4 py-2 mr-2 hover:bg-gray-400">
-                    Cancel
-                </button>
-                <button id="createGroupSubmit" class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600">
-                    Create Group
-                </button>
-            </div>
+    <!-- Modal for Creating Group -->
+    <div
+      id="createGroupModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="createGroupModalTitle"
+    >
+      <div class="bg-white rounded-lg p-6 w-1/3">
+        <h3 id="createGroupModalTitle" class="text-xl font-semibold mb-4">Create Group</h3>
+        <div class="mb-4">
+          <label
+            for="groupNameInput"
+            class="block text-sm font-medium text-gray-700"
+            >Group Name</label
+          >
+          <input
+            id="groupNameInput"
+            type="text"
+            class="border rounded w-full p-2 mt-2"
+            placeholder="Enter group name"
+            required
+          />
         </div>
+        <div id="contactsList" class="mb-4">
+          <!-- Email input fields will be added here dynamically (if needed) -->
+        </div>
+        <button
+          id="addEmailButton"
+          class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 mb-4"
+        >
+          Add Email
+        </button>
+        <div class="mt-4 flex justify-end space-x-4">
+          <button
+            id="cancelGroupButton"
+            class="bg-gray-300 text-black rounded px-4 py-2 hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            id="createGroupSubmit"
+            class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
+          >
+            Create Group
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Adding a Single User -->
+    <div
+      id="addUserModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="addUserModalTitle"
+    >
+      <div class="bg-white rounded-lg p-6 w-1/3">
+        <h3 id="addUserModalTitle" class="text-xl font-semibold mb-4">Add User to Group</h3>
+        
+        <!-- Single Email Input Field -->
+        <div class="mb-4">
+          <label
+            for="singleUserEmail"
+            class="block text-sm font-medium text-gray-700"
+          >
+            User Email
+          </label>
+          <input
+            type="email"
+            id="singleUserEmail"
+            class="border rounded w-full p-2 mt-2"
+            placeholder="Enter user email"
+            required
+          />
+        </div>
+        
+        <div class="mt-4 flex justify-end space-x-4">
+          <button
+            id="cancelAddUserButton"
+            class="bg-gray-300 text-black rounded px-4 py-2 hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            id="addUserSubmit"
+            class="bg-green-500 text-white rounded px-4 py-2 hover:bg-green-600 flex items-center"
+          >
+            <i class="fas fa-user-plus mr-2"></i>
+            <span>Add User</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional: Loading Indicator -->
+    <div id="loadingIndicator" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+      <div class="bg-white p-4 rounded-lg flex items-center">
+        <svg class="animate-spin h-5 w-5 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Processing...</span>
+      </div>
     </div>
 
     <script>
-        const chatArea = document.getElementById('chatArea');
-        const messageInput = document.getElementById('messageInput');
-        const groupList = document.getElementById('groupList');
-        const createGroupButton = document.getElementById('createGroupButton');
-        const createGroupModal = document.getElementById('createGroupModal');
-        const groupNameInput = document.getElementById('groupNameInput');
-        const contactsList = document.getElementById('contactsList');
-        const addEmailButton = document.getElementById('addEmailButton');
-        const createGroupSubmit = document.getElementById('createGroupSubmit');
+      // Existing Elements
+      const chatArea = document.getElementById("chatArea");
+      const messageInput = document.getElementById("messageInput");
+      const groupList = document.getElementById("groupList");
+      const createGroupButton = document.getElementById("createGroupButton");
+      const sendMessageButton = document.getElementById("sendMessageButton"); // Added for consistency
 
-        // Fetch messages when the page loads
-        window.onload = fetchMessages;
+      // Modal Elements for Create Group
+      const createGroupModal = document.getElementById("createGroupModal");
+      const groupNameInput = document.getElementById("groupNameInput");
+      const contactsList = document.getElementById("contactsList");
+      const addEmailButton = document.getElementById("addEmailButton");
+      const cancelGroupButton = document.getElementById("cancelGroupButton");
+      const createGroupSubmit = document.getElementById("createGroupSubmit");
 
-        // Fetch and display messages
-        function fetchMessages() {
-            const token = localStorage.getItem('jwt');
-            if (!token) {
-                alert("You need to log in to view the messages.");
-                return;
-            }
+      // Add User Modal Elements
+      const addUserButton = document.getElementById("addUserButton");
+      const addUserModal = document.getElementById("addUserModal");
+      const cancelAddUserButton = document.getElementById("cancelAddUserButton");
+      const addUserSubmit = document.getElementById("addUserSubmit");
 
-            axios.get("/textroutes/getMessages", {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }).then(response => {
-                chatArea.innerHTML = ""; // Clear chat area before displaying new messages
+      // Loading Indicator
+      const loadingIndicator = document.getElementById("loadingIndicator");
 
-                response.data.forEach(msg => {
-                    // Create a container for the entire message
-                    const messageContainer = document.createElement('div');
-                    messageContainer.className = 'mb-2'; // Add some spacing between messages
+      // Currently selected group ID
+      let selectedGroupId = null;
 
-                    // Create a sender and message element
-                    const messageTextElement = document.createElement('span');
-                    messageTextElement.textContent = `${msg.sender}: ${msg.message}`;
-                    messageTextElement.className = 'font-bold text-blue-700'; // Optional styling for sender/message
+      // Function to show notifications (existing)
+      function showNotification(message, type = "error") {
+        const notification = document.createElement("div");
+        notification.className = `fixed top-4 right-4 p-4 rounded ${
+          type === "error" ? "bg-red-500" : "bg-green-500"
+        } text-white`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 3000);
+      }
 
-                    // Create a timestamp element
-                    const timestampElement = document.createElement('span');
-                    const timestamp = new Date(msg.timestamp).toLocaleString();
-                    timestampElement.textContent = ` - ${timestamp}`;
-                    timestampElement.className = 'text-sm text-gray-500'; // Optional styling for timestamp
+      // Function to show loading indicator (existing)
+      function showLoading() {
+        loadingIndicator.classList.remove("hidden");
+      }
 
-                    // Append the message text and timestamp to the container
-                    messageContainer.appendChild(messageTextElement);
-                    messageContainer.appendChild(timestampElement);
+      // Function to hide loading indicator (existing)
+      function hideLoading() {
+        loadingIndicator.classList.add("hidden");
+      }
 
-                    // Append the message container to the chat area
-                    chatArea.appendChild(messageContainer);
-                });
-            }).catch(error => {
-                console.error("Error fetching messages:", error);
-            });
+      // Event listener to open the create group modal
+      createGroupButton.addEventListener("click", () => {
+        createGroupModal.classList.remove("hidden");
+        // Clear previous inputs
+        groupNameInput.value = "";
+        contactsList.innerHTML = "";
+        addEmailField(); // Add an initial email input
+      });
+
+      // Function to add an email input field (for create group)
+      function addEmailField() {
+        const emailInputContainer = document.createElement("div");
+        emailInputContainer.className = "flex items-center mb-2";
+        
+        const emailInput = document.createElement("input");
+        emailInput.type = "email";
+        emailInput.placeholder = "Enter email";
+        emailInput.className = "border rounded w-full p-2 mr-2";
+        emailInput.required = true;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className =
+          "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600";
+        removeButton.textContent = "Remove";
+
+        removeButton.addEventListener("click", () => {
+          contactsList.removeChild(emailInputContainer);
+        });
+
+        emailInputContainer.appendChild(emailInput);
+        emailInputContainer.appendChild(removeButton);
+        contactsList.appendChild(emailInputContainer);
+      }
+
+      // Event listener to close the create group modal
+      cancelGroupButton.addEventListener("click", () => {
+        createGroupModal.classList.add("hidden");
+      });
+
+      // Event listener to handle group creation
+      createGroupSubmit.addEventListener("click", () => {
+        const groupName = groupNameInput.value.trim();
+        const members = Array.from(
+          contactsList.querySelectorAll("input[type='email']")
+        )
+          .map((input) => input.value.trim())
+          .filter((value) => value);
+
+        if (!groupName || !members.length) {
+          showNotification("Group name and at least one member email are required.");
+          return;
         }
 
-        // Open the create group modal
-        createGroupButton.addEventListener("click", () => {
-            contactsList.innerHTML = ""; // Clear previous email fields
-            addEmailButton.classList.remove("hidden"); // Ensure add email button is visible
-            createGroupModal.classList.remove("hidden");
-        });
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          showNotification("Authentication token not found. Please log in again.");
+          window.location.href = "/login.html"; // Redirect to login
+          return;
+        }
 
-        // Add new email input field when "Add Email" button is clicked
-        addEmailButton.addEventListener("click", () => {
-            const emailInputDiv = document.createElement("div");
-            emailInputDiv.classList.add("mb-4", "flex", "items-center");
+        // Disable the submit button to prevent multiple submissions
+        createGroupSubmit.disabled = true;
+        createGroupSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...'; // Provide visual feedback
+        showLoading(); // Show loading indicator
 
-            // Create an email input field
-            const emailInput = document.createElement("input");
-            emailInput.type = "email";
-            emailInput.placeholder = "Enter member's email";
-            emailInput.classList.add("border", "rounded", "w-full", "p-2");
-
-            // Create a remove button for the email input
-            const removeButton = document.createElement("button");
-            removeButton.textContent = "Remove";
-            removeButton.classList.add("bg-red-500", "text-white", "rounded", "px-2", "ml-2");
-
-            // Append the email input and remove button to the div
-            emailInputDiv.appendChild(emailInput);
-            emailInputDiv.appendChild(removeButton);
-            contactsList.appendChild(emailInputDiv);
-
-            // Remove the email input field when the remove button is clicked
-            removeButton.addEventListener("click", () => {
-                contactsList.removeChild(emailInputDiv);
-            });
-        });
-
-        // Cancel group creation
-        document.getElementById("cancelGroupButton").addEventListener("click", () => {
+        axios
+          .post(
+            "/textroutes/creategroups",
+            { groupName, members },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+          .then((response) => {
+            const group = response.data.group; // Assuming the API returns the created group
+            addGroupToList(group);
             createGroupModal.classList.add("hidden");
-        });
+            groupNameInput.value = "";
+            contactsList.innerHTML = ""; // Clear email inputs
+            // Automatically select the newly created group
+            setActiveGroup(group.id);
+            openChat(group.id);
+            showNotification("Group created successfully!", "success");
+          })
+          .catch((error) => {
+            console.error("Error creating group:", error);
+            showNotification("Failed to create group. Please try again.");
+          })
+          .finally(() => {
+            // Re-enable the submit button
+            createGroupSubmit.disabled = false;
+            createGroupSubmit.innerHTML = "Create Group"; // Reset button text
+            hideLoading(); // Hide loading indicator
+          });
+      });
 
-        // Create group
-        createGroupSubmit.addEventListener("click", () => {
-            const groupName = groupNameInput.value.trim();
-            const members = Array.from(contactsList.querySelectorAll("input[type='email']")).map(input => input.value);
+      // Event listener to add new email input fields (for create group)
+      addEmailButton.addEventListener("click", () => {
+        addEmailField();
+      });
 
-            if (!groupName || members.length === 0) {
-                alert("Group name and members are required.");
-                return;
+      // Fetch and display groups when the page loads
+      window.addEventListener("load", fetchGroups);
+
+      // Fetch groups and display them in the sidebar
+      function fetchGroups() {
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          showNotification("You need to log in to view the groups.");
+          window.location.href = "/login.html"; // Redirect to login
+          return;
+        }
+
+        showLoading(); // Show loading indicator
+
+        axios
+          .get("/textroutes/getUserGroups", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            groupList.innerHTML = "";
+
+            const { userGroups, createdGroups } = response.data;
+
+            // Combine userGroups and createdGroups
+            const allGroups = [
+              ...userGroups.map((group) => ({
+                id: group.groupId,
+                name: group.groupName,
+                role: group.role,
+              })),
+              ...createdGroups.map((group) => ({
+                id: group.groupId,
+                name: group.groupName,
+                role: "admin", // Assuming creator is always an admin
+              })),
+            ];
+
+            if (allGroups.length === 0) {
+              groupList.innerHTML =
+                "<li class='text-gray-500'>No groups available. Create one!</li>";
+              chatArea.innerHTML =
+                "<p class='text-gray-500'>Select a group to start chatting.</p>";
+              return;
             }
 
-            const token = localStorage.getItem('jwt');
-            axios.post("/textroutes/creategroups", { groupName, members }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }).then(response => {
-                const group = document.createElement("li");
-                group.innerHTML = `<a href="#">${groupName}</a>`;
-                groupList.appendChild(group);
-                createGroupModal.classList.add("hidden");
-                groupNameInput.value = "";
-            }).catch(console.error);
+            // Render groups to the list
+            allGroups.forEach((group, index) => {
+              addGroupToList(group);
+
+              // Automatically select the first group
+              if (index === 0 && !selectedGroupId) {
+                setActiveGroup(group.id);
+                openChat(group.id);
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching groups:", error);
+            showNotification("Failed to load groups. Please try again.");
+          })
+          .finally(() => {
+            hideLoading(); // Hide loading indicator
+          });
+      }
+
+      // Function to add a new group to the list
+      function addGroupToList(group) {
+        // Check if the group already exists in the list
+        const existingGroup = groupList.querySelector(`li[data-group-id='${group.id}']`);
+        if (existingGroup) {
+          console.warn(`Group with ID ${group.id} already exists in the list.`);
+          return; // Exit the function to prevent duplication
+        }
+
+        const groupElement = document.createElement("li");
+        groupElement.classList.add(
+          "cursor-pointer",
+          "text-blue-600", // Consistent color
+          "hover:text-blue-800",
+          "py-2",
+          "px-1"
+        );
+        groupElement.textContent = `${group.name} (${group.role || "member"})`; // Display role if available
+        groupElement.setAttribute("data-group-id", group.id);
+
+        groupElement.addEventListener("click", () => {
+          setActiveGroup(group.id);
+          openChat(group.id);
         });
 
-        // Logout functionality
-        document.getElementById('logoutButton').addEventListener("click", () => {
-            localStorage.removeItem("jwt");
-            window.location.href = "/login.html";
+        groupList.appendChild(groupElement);
+      }
+
+      // Function to set the active group
+      function setActiveGroup(groupId) {
+        // Remove active class from all groups
+        const groups = groupList.querySelectorAll("li");
+        groups.forEach((group) => {
+          group.classList.remove("bg-blue-100", "font-bold");
         });
 
-         // Send message functionality
-         document.getElementById("sendMessageButton").addEventListener("click", () => {
-            const message = messageInput.value.trim();
-            const groupId = null; 
-            if (!message) return;
-            const token = localStorage.getItem('jwt');
-            axios.post("/textroutes/send", { message , groupId }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }).then(() => {
-                const messageElement = document.createElement('div');
-                messageElement.textContent = `You: ${message}`;
-                chatArea.appendChild(messageElement);
-                messageInput.value = "";
-            }).catch(console.error);
-        });
+        // Add active class to the selected group
+        const activeGroup = groupList.querySelector(
+          `li[data-group-id='${groupId}']`
+        );
+        if (activeGroup) {
+          activeGroup.classList.add("bg-blue-100", "font-bold");
+          // Update the chat header with group name
+          const groupName = activeGroup.textContent.split(" (")[0];
+          document.getElementById("chatGroupName").textContent = groupName;
+        }
+
+        selectedGroupId = groupId;
+      }
+
+      // Function to open chat for a specific group
+      function openChat(groupId) {
+        chatArea.innerHTML = "<p class='text-gray-500'>Loading messages...</p>";
+        messageInput.value = "";
+        fetchMessages(groupId);
+      }
+
+      // Function to fetch messages for a specific group
+      function fetchMessages(groupId) {
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          showNotification("You need to log in to view the messages.");
+          window.location.href = "/login.html"; // Redirect to login
+          return;
+        }
+
+        showLoading(); // Show loading indicator
+
+        axios
+          .get(`/textroutes/getMessages?groupId=${groupId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            const messages = response.data.messages;
+            chatArea.innerHTML = ""; // Clear existing messages
+
+            if (messages.length === 0) {
+              chatArea.innerHTML =
+                "<p class='text-gray-500'>No messages in this group yet. Start the conversation!</p>";
+              return;
+            }
+
+            messages.forEach((msg) => {
+              const messageContainer = document.createElement("div");
+              messageContainer.className = "mb-4";
+
+              const senderElement = document.createElement("span");
+              senderElement.textContent = msg.sender;
+              senderElement.className = "font-bold text-blue-700";
+
+              const messageElement = document.createElement("span");
+              messageElement.textContent = `: ${msg.message}`;
+              messageElement.className = "ml-2";
+
+              const timestampElement = document.createElement("div");
+              const timestamp = new Date(msg.timestamp).toLocaleString();
+              timestampElement.textContent = timestamp;
+              timestampElement.className = "text-sm text-gray-500";
+
+              messageContainer.appendChild(senderElement);
+              messageContainer.appendChild(messageElement);
+              messageContainer.appendChild(timestampElement);
+
+              chatArea.appendChild(messageContainer);
+            });
+
+            // Scroll to the bottom of the chat
+            chatArea.scrollTop = chatArea.scrollHeight;
+          })
+          .catch((error) => {
+            console.error("Error fetching messages:", error);
+            chatArea.innerHTML =
+              "<p class='text-red-500'>Failed to load messages. Please try again.</p>";
+          })
+          .finally(() => {
+            hideLoading(); // Hide loading indicator
+          });
+      }
+
+      // Event listener for logout button
+      document.getElementById("logoutButton").addEventListener("click", () => {
+        localStorage.removeItem("jwt");
+        window.location.href = "/login.html";
+      });
+
+      // Event listener for send message button
+      sendMessageButton.addEventListener("click", () => {
+        const message = messageInput.value.trim();
+
+        if (!message) {
+          showNotification("Cannot send an empty message.");
+          return;
+        }
+
+        if (!selectedGroupId) {
+          showNotification("No group selected.");
+          return;
+        }
+
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          showNotification("You need to log in to send a message.");
+          window.location.href = "/login.html"; // Redirect to login
+          return;
+        }
+
+        // Disable the send button to prevent multiple clicks
+        sendMessageButton.disabled = true;
+        sendMessageButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...'; // Visual feedback
+
+        axios
+          .post(
+            "/textroutes/sendmessage",
+            { groupId: selectedGroupId, message },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          .then((response) => {
+            messageInput.value = "";
+            fetchMessages(selectedGroupId);
+          })
+          .catch((error) => {
+            console.error("Error sending message:", error);
+            showNotification("Failed to send message. Please try again.");
+          })
+          .finally(() => {
+            // Re-enable the send button
+            sendMessageButton.disabled = false;
+            sendMessageButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Send'; // Reset button text
+          });
+      });
+
+      // Optional: Allow sending message with Enter key
+      messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendMessageButton.click();
+        }
+      });
+
+      // Function to handle adding a single user to the group
+      function handleAddUser() {
+        const emailInput = document.getElementById("singleUserEmail");
+        const email = emailInput.value.trim();
+
+        if (!email) {
+          showNotification("Please enter an email address.");
+          return;
+        }
+
+        // Validate email format (optional but recommended)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showNotification("Please enter a valid email address.");
+          return;
+        }
+
+        const token = localStorage.getItem("jwt");
+        if (!token) {
+          showNotification("Authentication token not found. Please log in again.");
+          window.location.href = "/login.html";
+          return;
+        }
+
+        // Disable the submit button to prevent multiple submissions
+        addUserSubmit.disabled = true;
+        addUserSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Adding...';
+        showLoading();
+
+        axios
+          .post(
+            "/textroutes/addUserToGroup",
+            { groupId: selectedGroupId, email }, // Sending a single email
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+          .then((response) => {
+            hideAddUserModal();
+            fetchGroups(); // Refresh the groups or update the UI as needed
+            const { message } = response.data;
+            showNotification(message, "success");
+            emailInput.value = ""; // Clear the input field
+          })
+          .catch((error) => {
+            console.error("Error adding user:", error);
+            const errorMessage = error.response?.data?.message || "Failed to add user. Please try again.";
+            showNotification(errorMessage);
+          })
+          .finally(() => {
+            // Re-enable the submit button
+            addUserSubmit.disabled = false;
+            addUserSubmit.innerHTML = '<i class="fas fa-user-plus mr-2"></i> Add User';
+            hideLoading();
+          });
+      }
+
+      // Event Listener for the "Add User" button
+      addUserSubmit.addEventListener("click", handleAddUser);
+
+      // Function to show the Add User Modal
+      function showAddUserModal() {
+        addUserModal.classList.remove("hidden");
+        // Clear previous input
+        document.getElementById("singleUserEmail").value = "";
+      }
+
+      // Function to hide the Add User Modal
+      function hideAddUserModal() {
+        addUserModal.classList.add("hidden");
+      }
+
+      // Event Listeners for Add User Modal
+      addUserButton.addEventListener("click", showAddUserModal);
+      cancelAddUserButton.addEventListener("click", hideAddUserModal);
     </script>
-</body>
-
+  </body>
 </html>

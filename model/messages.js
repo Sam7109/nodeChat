@@ -8,7 +8,7 @@ const Messages = sequelize.define('Messages', {
         autoIncrement: true,     
         allowNull: false,      
     },
-    userid: {
+    userId: {
         type: DataTypes.INTEGER, 
         allowNull: false,
     },
