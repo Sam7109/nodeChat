@@ -18,6 +18,7 @@
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
+    "node-cron": "^3.0.3",
     "nodechat": "file:",
     "nodemon": "^3.1.7",
     "sequelize": "^6.37.5"

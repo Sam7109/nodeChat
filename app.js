@@ -15,10 +15,14 @@ const Messages = require("./model/messages");
 
 const Group = require("./model/groups");
 const GroupMember = require("./model/groupmembers");
+
+const ArchivedChats = require("./model/archivedchats");
 const GroupMessage = require("./model/groupmessage");
 
 const signupRoutes = require("./routes/signup");
 const textroutes = require("./routes/messages");
+
+const cron = require('./utils/cron');
 
 // Userdetails has many Messages
 Userdetails.hasMany(Messages, { foreignKey: "userId", as: "messages" });
